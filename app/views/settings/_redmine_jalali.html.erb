@@ -1,0 +1,17 @@
+<% day_names = RedmineJalali::Formatter.day_names %>
+<p>
+  <label for="settings_enabled_locales"><%= l(:label_jalali_enabled_locales) %></label>
+  <%= text_field_tag 'settings[enabled_locales]', @settings['enabled_locales'], size: 20 %>
+  <em class="info"><%= l(:text_jalali_enabled_locales_info) %></em>
+</p>
+<p>
+  <label for="settings_persian_digits"><%= l(:label_jalali_persian_digits) %></label>
+  <%= hidden_field_tag 'settings[persian_digits]', '0', id: nil %>
+  <%= check_box_tag 'settings[persian_digits]', '1', @settings['persian_digits'].to_s == '1' %>
+</p>
+<p>
+  <label for="settings_week_start"><%= l(:label_jalali_week_start) %></label>
+  <%= select_tag 'settings[week_start]',
+                 options_for_select([[day_names[6], '6'], [day_names[0], '0'], [day_names[1], '1']],
+                                    @settings['week_start'].to_s) %>
+</p>

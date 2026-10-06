@@ -1,0 +1,15 @@
+<% if RedmineJalali.active? %>
+  <%= tag.meta name: 'redmine-jalali',
+               content: 'enabled',
+               data: {
+                 'week-start'     => RedmineJalali.week_start.to_s,
+                 'persian-digits' => (RedmineJalali.persian_digits? ? '1' : '0'),
+                 'rtl'            => (::I18n.t(:direction) == 'rtl' ? '1' : '0'),
+                 'months'         => RedmineJalali::Formatter.month_names.to_json,
+                 'days'           => RedmineJalali::Formatter.day_names.to_json,
+                 'labels'         => { today: ::I18n.t('redmine_jalali.today', default: 'Today'),
+                                       clear: ::I18n.t('redmine_jalali.clear', default: 'Clear') }.to_json
+               } %>
+  <%= stylesheet_link_tag 'redmine_jalali', plugin: 'redmine_jalali' %>
+  <%= javascript_include_tag 'jalali', 'jalali-datepicker', 'redmine_jalali', plugin: 'redmine_jalali' %>
+<% end %>

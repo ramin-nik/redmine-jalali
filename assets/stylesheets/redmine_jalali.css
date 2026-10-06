@@ -1,0 +1,36 @@
+/* The real <input type="date"> stays in the DOM (holds the Gregorian value) but is not visible. */
+input.jalali-source {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+input.jalali-date { direction: ltr; text-align: left; }
+input.jalali-date.jalali-invalid { border-color: #c00; background: #fff4f4; }
+
+.jdp {
+  position: absolute; z-index: 100000; width: 260px; box-sizing: border-box;
+  padding: 8px; background: #fff; color: #222;
+  border: 1px solid #bbb; border-radius: 6px; box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+  font-size: 13px;
+}
+.jdp-head { display: flex; direction: ltr; align-items: center; gap: 4px; margin-bottom: 6px; }
+.jdp-head .jdp-month { flex: 1; min-width: 0; }
+.jdp-head .jdp-year { width: 64px; }
+.jdp-nav { width: 28px; padding: 2px 0; cursor: pointer; font-size: 16px; line-height: 1; }
+.jdp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.jdp-dow { font-weight: bold; color: #666; padding: 3px 0; }
+.jdp-day {
+  padding: 5px 0; border: 1px solid transparent; background: none; color: inherit;
+  border-radius: 4px; cursor: pointer; font: inherit;
+}
+.jdp-day:hover { background: #e8f0fb; }
+.jdp-day.jdp-today { border-color: #628db6; }
+.jdp-day.jdp-selected { background: #628db6; color: #fff; }
+.jdp-foot { display: flex; justify-content: space-between; margin-top: 6px; }
+.jdp-foot button { cursor: pointer; }

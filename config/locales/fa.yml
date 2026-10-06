@@ -1,0 +1,10 @@
+fa:
+  label_jalali_enabled_locales: "زبان‌های دارای تقویم جلالی"
+  text_jalali_enabled_locales_info: "کد زبان‌ها با کاما جدا شوند، مثلاً fa یا fa,en"
+  label_jalali_persian_digits: "نمایش ارقام فارسی"
+  label_jalali_week_start: "اولین روز هفته"
+  redmine_jalali:
+    today: "امروز"
+    clear: "پاک کردن"
+    month_names: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
+    day_names: ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"]

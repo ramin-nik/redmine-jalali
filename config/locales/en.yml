@@ -1,0 +1,10 @@
+en:
+  label_jalali_enabled_locales: "Locales using the Jalali calendar"
+  text_jalali_enabled_locales_info: "Comma separated locale codes, e.g. fa or fa,en"
+  label_jalali_persian_digits: "Use Persian digits"
+  label_jalali_week_start: "First day of the week"
+  redmine_jalali:
+    today: "Today"
+    clear: "Clear"
+    month_names: ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+    day_names: ["Yekshanbe", "Doshanbe", "Seshanbe", "Chaharshanbe", "Panjshanbe", "Jomeh", "Shanbe"]
