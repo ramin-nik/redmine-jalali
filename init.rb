@@ -4,7 +4,7 @@ require_relative 'lib/redmine_jalali'
 
 Redmine::Plugin.register :redmine_jalali do
   name 'Redmine Jalali'
-  author 'Redmine Jalali'
+  author 'Ramin-Redmine Jalali'
   description 'Jalali (Persian/Solar Hijri) calendar for Redmine. Display and input only; ' \
               'the database and the REST API keep using Gregorian dates.'
   version '0.1.1'
