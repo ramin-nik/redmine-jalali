@@ -69,7 +69,8 @@
 
     var grid = h('div', 'jdp-grid');
     for (i = 0; i < 7; i++) {
-      grid.appendChild(h('span', 'jdp-dow', cfg.days[(cfg.weekStart + i) % 7].charAt(0)));
+      var wd = (cfg.weekStart + i) % 7;
+      grid.appendChild(h('span', 'jdp-dow', cfg.dayAbbrs && cfg.dayAbbrs.length === 7 ? cfg.dayAbbrs[wd] : cfg.days[wd].charAt(0)));
     }
     var g = J.toGregorian(jy, jm, 1);
     var offset = (J.weekday(g.gy, g.gm, g.gd) - cfg.weekStart + 7) % 7;
@@ -113,7 +114,7 @@
     popup.style.top = (r.bottom + sy + 2) + 'px';
   }
 
-  /* cfg: { value:{jy,jm,jd}|null, weekStart, months[12], days[7], labels:{today,clear}, rtl, persianDigits, onPick(g), onClear() } */
+  /* cfg: { value:{jy,jm,jd}|null, weekStart, months[12], days[7], dayAbbrs[7] (optional), labels:{today,clear}, rtl, persianDigits, onPick(g), onClear() } */
   function open(input, cfg) {
     close();
     var base = cfg.value || J.today();

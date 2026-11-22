@@ -73,7 +73,7 @@
     function openPicker() {
       window.JalaliDatePicker.open(vis, {
         value: jalaliOf(src.value),
-        weekStart: cfg.weekStart, months: cfg.months, days: cfg.days, labels: cfg.labels,
+        weekStart: cfg.weekStart, months: cfg.months, days: cfg.days, dayAbbrs: cfg.dayAbbrs, labels: cfg.labels,
         rtl: cfg.rtl, persianDigits: cfg.persianDigits,
         onPick: function (g) { setIso(J.toIso(g.gy, g.gm, g.gd)); },
         onClear: function () { setIso(''); }
@@ -110,6 +110,7 @@
       rtl: d.rtl === '1',
       months: parseJSON(d.months, []),
       days: parseJSON(d.days, []),
+      dayAbbrs: parseJSON(d.dayAbbrs, []),
       labels: parseJSON(d.labels, { today: 'Today', clear: 'Clear' })
     };
     if (cfg.months.length !== 12 || cfg.days.length !== 7) return;
