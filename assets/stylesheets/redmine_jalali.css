@@ -10,27 +10,98 @@ input.jalali-source {
   padding: 0 !important;
   border: 0 !important;
 }
-input.jalali-date { direction: ltr; text-align: left; }
-input.jalali-date.jalali-invalid { border-color: #c00; background: #fff4f4; }
+/* Colours are variables so a Redmine theme can restyle the picker without overriding rules. */
+:root {
+  --jdp-accent: #3b6ea5;      /* white text on it and it on white: >= 4.5:1 */
+  --jdp-accent-soft: #e8f0fb;
+  --jdp-text: #1f2933;
+  --jdp-muted: #5f6b7a;
+  --jdp-border: #d9e2ec;
+  --jdp-bg: #fff;
+  --jdp-off: #c2410c; /* Redmine's non-working days */
+}
+
+/* The visible Jalali field, with a small calendar icon that says it opens a picker. */
+input.jalali-date {
+  direction: ltr;
+  text-align: left;
+  padding-right: 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%235f6b7a' stroke-width='1.4' stroke-linecap='round'%3E%3Crect x='2' y='3' width='12' height='11' rx='2'/%3E%3Cpath d='M2 6.5h12M5.5 1.5v3M10.5 1.5v3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 14px 14px;
+  cursor: pointer;
+}
+input.jalali-date:disabled { cursor: default; opacity: .6; }
+input.jalali-date.jalali-invalid { border-color: #c00; background-color: #fff4f4; }
 
 .jdp {
-  position: absolute; z-index: 100000; width: 260px; box-sizing: border-box;
-  padding: 8px; background: #fff; color: #222;
-  border: 1px solid #bbb; border-radius: 6px; box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
-  font-size: 13px;
+  position: absolute; z-index: 100000; width: 284px; box-sizing: border-box;
+  padding: 12px; background: var(--jdp-bg); color: var(--jdp-text);
+  border: 1px solid var(--jdp-border); border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 42, 67, .16), 0 2px 6px rgba(16, 42, 67, .08);
+  font-size: 13px; line-height: 1.4;
+  animation: jdp-in .12s ease-out;
 }
-.jdp-head { display: flex; direction: ltr; align-items: center; gap: 4px; margin-bottom: 6px; }
-.jdp-head .jdp-month { flex: 1; min-width: 0; }
-.jdp-head .jdp-year { width: 64px; }
-.jdp-nav { width: 28px; padding: 2px 0; cursor: pointer; font-size: 16px; line-height: 1; }
+@keyframes jdp-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .jdp { animation: none; } }
+
+.jdp button, .jdp select, .jdp input { font-family: inherit; }
+/* The header follows the page direction: in RTL "previous" sits on the right and the title
+   reads "آذر 1405". Month and year stay together in the middle. */
+.jdp-head { display: flex; align-items: center; gap: 2px; margin-bottom: 8px; }
+.jdp-head .jdp-nav:first-child { margin-inline-end: auto; }
+.jdp-head .jdp-nav:last-child { margin-inline-start: auto; }
+.jdp-nav {
+  position: relative; flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: var(--jdp-muted); font-size: 0; cursor: pointer;
+}
+/* The arrows are drawn, not text: browsers mirror the ‹ › glyphs inconsistently in RTL.
+   Both point outward: "previous" toward the start of the line, "next" toward its end. */
+.jdp-nav::before {
+  content: ""; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10 3 5 8l5 5' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10 3 5 8l5 5' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.jdp-nav:last-child::before, .jdp[dir="rtl"] .jdp-nav:first-child::before { transform: scaleX(-1); }
+.jdp[dir="rtl"] .jdp-nav:last-child::before { transform: none; }
+.jdp-nav:hover { background: var(--jdp-accent-soft); color: var(--jdp-accent); }
+.jdp-head .jdp-month, .jdp-head .jdp-year {
+  height: 30px; box-sizing: border-box; padding: 0 6px; margin: 0;
+  border: 1px solid transparent; border-radius: 8px; background: transparent;
+  color: var(--jdp-text); font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.jdp-head .jdp-month { flex: 0 1 auto; min-width: 0; text-align: center; text-align-last: center; }
+.jdp-head .jdp-year { width: 62px; text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.jdp-head .jdp-year::-webkit-inner-spin-button, .jdp-head .jdp-year::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.jdp-head .jdp-month:hover, .jdp-head .jdp-year:hover,
+.jdp-head .jdp-month:focus, .jdp-head .jdp-year:focus { background: var(--jdp-accent-soft); outline: none; border-color: var(--jdp-border); }
+
 .jdp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-.jdp-dow { font-weight: bold; color: #666; padding: 3px 0; }
+.jdp-dow { padding: 4px 0 6px; color: var(--jdp-muted); font-size: 11px; font-weight: 600; }
 .jdp-day {
-  padding: 5px 0; border: 1px solid transparent; background: none; color: inherit;
-  border-radius: 4px; cursor: pointer; font: inherit;
+  width: 34px; height: 34px; justify-self: center; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: inherit; font: inherit; cursor: pointer;
+  transition: background-color .1s, color .1s;
 }
-.jdp-day:hover { background: #e8f0fb; }
-.jdp-day.jdp-today { border-color: #628db6; }
-.jdp-day.jdp-selected { background: #628db6; color: #fff; }
-.jdp-foot { display: flex; justify-content: space-between; margin-top: 6px; }
-.jdp-foot button { cursor: pointer; }
+.jdp-day:hover { background: var(--jdp-accent-soft); }
+.jdp-day:focus-visible, .jdp-nav:focus-visible, .jdp-foot button:focus-visible { outline: 2px solid var(--jdp-accent); outline-offset: 1px; }
+/* Non-working days: the grid lists their columns (1-7) in data-off; header and days share a column. */
+.jdp-grid[data-off~="1"] > :nth-child(7n+1), .jdp-grid[data-off~="2"] > :nth-child(7n+2),
+.jdp-grid[data-off~="3"] > :nth-child(7n+3), .jdp-grid[data-off~="4"] > :nth-child(7n+4),
+.jdp-grid[data-off~="5"] > :nth-child(7n+5), .jdp-grid[data-off~="6"] > :nth-child(7n+6),
+.jdp-grid[data-off~="7"] > :nth-child(7n) { color: var(--jdp-off); }
+.jdp-day.jdp-today { box-shadow: inset 0 0 0 1.5px var(--jdp-accent); font-weight: 700; }
+.jdp-grid > .jdp-day.jdp-selected { background: var(--jdp-accent); color: #fff; font-weight: 700; box-shadow: none; }
+
+.jdp-foot {
+  display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--jdp-border);
+}
+.jdp-foot button {
+  padding: 5px 12px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--jdp-accent); font: inherit; font-weight: 600; cursor: pointer;
+}
+.jdp-foot button:hover { background: var(--jdp-accent-soft); }
+.jdp-foot .jdp-clear-btn { color: var(--jdp-muted); }

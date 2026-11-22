@@ -68,6 +68,10 @@
     popup.appendChild(head);
 
     var grid = h('div', 'jdp-grid');
+    // Columns (1-7) of Redmine's non-working week days, coloured by the stylesheet.
+    grid.setAttribute('data-off', (cfg.nonWorking || []).map(function (wd) {
+      return (wd - cfg.weekStart + 7) % 7 + 1;
+    }).join(' '));
     for (i = 0; i < 7; i++) {
       grid.appendChild(h('span', 'jdp-dow', cfg.days[(cfg.weekStart + i) % 7].charAt(0)));
     }
@@ -106,7 +110,9 @@
   function place() {
     var r = cur.input.getBoundingClientRect();
     var sx = window.pageXOffset, sy = window.pageYOffset;
-    var left = r.left + sx;
+    // Line the popup up with the field's start edge: left in LTR, right in RTL.
+    var left = cur.cfg.rtl ? r.right + sx - popup.offsetWidth : r.left + sx;
+    if (left < sx + 4) left = sx + 4;
     var maxLeft = sx + document.documentElement.clientWidth - popup.offsetWidth - 8;
     if (left > maxLeft) left = Math.max(sx + 4, maxLeft);
     popup.style.left = left + 'px';
