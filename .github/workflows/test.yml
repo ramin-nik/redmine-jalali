@@ -1,0 +1,82 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  javascript:
+    name: JavaScript (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --test test/js/*.test.js
+
+  ruby:
+    name: Ruby unit tests (Ruby ${{ matrix.ruby }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: ['3.2', '3.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - run: gem install minitest --no-document
+      - run: for f in test/*_test.rb; do echo "== $f"; ruby -Ilib "$f" || exit 1; done
+
+  redmine:
+    name: Redmine ${{ matrix.redmine }} smoke test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # init.rb declares requires_redmine 5.0.0
+        redmine: ['5.0', '5.1', '6.0', '6.1', '7.0']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Redmine with the plugin (SQLite)
+        run: |
+          docker run -d --name redmine -p 3000:3000 \
+            -v "$PWD:/usr/src/redmine/plugins/redmine_jalali:ro" \
+            redmine:${{ matrix.redmine }}
+          for i in $(seq 90); do
+            curl -fs -o /dev/null http://127.0.0.1:3000/login && exit 0
+            sleep 2
+          done
+          docker logs --tail 100 redmine
+          exit 1
+      - name: Plugin loads and formats dates as Jalali
+        run: |
+          docker exec -u redmine redmine bundle exec rails runner '
+            include Redmine::I18n
+            abort "plugin not registered" unless Redmine::Plugin.installed?(:redmine_jalali)
+            got = ::I18n.with_locale(:fa) { format_date(Date.new(2025, 3, 21)) }
+            puts "format_date(2025-03-21) in fa: #{got}"
+            abort "expected 1404/01/01, got #{got}" unless got == "1404/01/01"
+            en = ::I18n.with_locale(:en) { format_date(Date.new(2025, 3, 21)) }
+            abort "en must stay Gregorian, got #{en}" if en.start_with?("1404")
+          '
+      - name: Plugin assets are served
+        run: |
+          curl -fs http://127.0.0.1:3000/login > /dev/null
+          docker exec -u redmine redmine bundle exec rails runner '
+            Setting.default_language = "fa"
+            Setting.plugin_redmine_jalali = { "enabled_locales" => "fa" }
+          '
+          html=$(curl -fs http://127.0.0.1:3000/login)
+          echo "$html" | grep -q 'name="redmine-jalali"' || { echo "meta tag missing"; exit 1; }
+          for path in $(echo "$html" | grep -oE '(src|href)="[^"]*redmine_jalali[^"]*"' | cut -d'"' -f2); do
+            echo "GET $path"
+            curl -fs -o /dev/null "http://127.0.0.1:3000$path"
+          done
