@@ -3,6 +3,7 @@
                content: 'enabled',
                data: {
                  'week-start'     => RedmineJalali.week_start.to_s,
+                 'today'          => User.current.today.iso8601,
                  'persian-digits' => (RedmineJalali.persian_digits? ? '1' : '0'),
                  'rtl'            => (::I18n.t(:direction) == 'rtl' ? '1' : '0'),
                  'months'         => RedmineJalali::Formatter.month_names.to_json,

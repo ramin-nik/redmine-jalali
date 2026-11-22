@@ -18,19 +18,30 @@
   }
   function num(n) { return cur.cfg.persianDigits ? J.toPersianDigits(n) : String(n); }
 
+  // "Today" comes from the page (the Redmine user's time zone) when given, else the browser.
+  function todayG() {
+    var t = cur.cfg.today, n = new Date();
+    return t || { gy: n.getFullYear(), gm: n.getMonth() + 1, gd: n.getDate() };
+  }
+  function todayJ() { var g = todayG(); return J.toJalali(g.gy, g.gm, g.gd); }
+
   function close() {
     if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
     popup = null;
     cur = null;
     document.removeEventListener('mousedown', onDocDown, true);
+    document.removeEventListener('focusin', onDocDown, true);
     document.removeEventListener('keydown', onKey, true);
-    window.removeEventListener('resize', close);
+    window.removeEventListener('resize', onResize);
   }
+  // Closes on a click or keyboard focus (Tab) anywhere outside the field and the popup.
   function onDocDown(e) {
     if (!popup) return;
     if (popup.contains(e.target) || e.target === cur.input) return;
     close();
   }
+  // A resize (e.g. a phone's on-screen keyboard opening) only moves the popup.
+  function onResize() { if (popup) place(); }
   function onKey(e) { if (e.key === 'Escape') close(); }
 
   function step(delta) {
@@ -74,7 +85,7 @@
     var g = J.toGregorian(jy, jm, 1);
     var offset = (J.weekday(g.gy, g.gm, g.gd) - cfg.weekStart + 7) % 7;
     for (i = 0; i < offset; i++) grid.appendChild(h('span', 'jdp-empty'));
-    var len = J.monthLength(jy, jm), t = J.today(), sv = cfg.value;
+    var len = J.monthLength(jy, jm), t = todayJ(), sv = cfg.value;
     for (d = 1; d <= len; d++) {
       (function (day) {
         var cls = 'jdp-day';
@@ -91,9 +102,9 @@
 
     var foot = h('div', 'jdp-foot');
     foot.appendChild(btn('jdp-today-btn', cfg.labels.today, function () {
-      var n = new Date(), cb = cfg.onPick;
+      var g = todayG(), cb = cfg.onPick;
       close();
-      cb({ gy: n.getFullYear(), gm: n.getMonth() + 1, gd: n.getDate() });
+      cb(g);
     }));
     foot.appendChild(btn('jdp-clear-btn', cfg.labels.clear, function () {
       var cb = cfg.onClear;
@@ -113,19 +124,22 @@
     popup.style.top = (r.bottom + sy + 2) + 'px';
   }
 
-  /* cfg: { value:{jy,jm,jd}|null, weekStart, months[12], days[7], labels:{today,clear}, rtl, persianDigits, onPick(g), onClear() } */
+  /* cfg: { value:{jy,jm,jd}|null, today:{gy,gm,gd} (optional), weekStart, months[12], days[7], labels:{today,clear}, rtl, persianDigits, onPick(g), onClear() } */
   function open(input, cfg) {
     close();
-    var base = cfg.value || J.today();
-    cur = { input: input, cfg: cfg, jy: base.jy, jm: base.jm };
+    cur = { input: input, cfg: cfg };
+    var base = cfg.value || todayJ();
+    cur.jy = base.jy;
+    cur.jm = base.jm;
     popup = h('div', 'jdp');
     popup.setAttribute('dir', cfg.rtl ? 'rtl' : 'ltr');
     document.body.appendChild(popup);
     render();
     place();
     document.addEventListener('mousedown', onDocDown, true);
+    document.addEventListener('focusin', onDocDown, true);
     document.addEventListener('keydown', onKey, true);
-    window.addEventListener('resize', close);
+    window.addEventListener('resize', onResize);
   }
 
   root.JalaliDatePicker = { open: open, close: close };

@@ -13,6 +13,10 @@
     try { var v = JSON.parse(s); return v || fallback; } catch (e) { return fallback; }
   }
   function fire(el, type) { el.dispatchEvent(new Event(type, { bubbles: true })); }
+  function isoToG(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? { gy: +m[1], gm: +m[2], gd: +m[3] } : null;
+  }
   function jalaliOf(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
     if (!m) return null;
@@ -73,6 +77,7 @@
     function openPicker() {
       window.JalaliDatePicker.open(vis, {
         value: jalaliOf(src.value),
+        today: cfg.today,
         weekStart: cfg.weekStart, months: cfg.months, days: cfg.days, labels: cfg.labels,
         rtl: cfg.rtl, persianDigits: cfg.persianDigits,
         onPick: function (g) { setIso(J.toIso(g.gy, g.gm, g.gd)); },
@@ -110,7 +115,8 @@
       rtl: d.rtl === '1',
       months: parseJSON(d.months, []),
       days: parseJSON(d.days, []),
-      labels: parseJSON(d.labels, { today: 'Today', clear: 'Clear' })
+      labels: parseJSON(d.labels, { today: 'Today', clear: 'Clear' }),
+      today: isoToG(d.today) // today in the Redmine user's time zone, not the browser's
     };
     if (cfg.months.length !== 12 || cfg.days.length !== 7) return;
 
