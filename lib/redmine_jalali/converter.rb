@@ -9,6 +9,9 @@ module RedmineJalali
     BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635,
               2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178].freeze
 
+    # jal_cal results per [year, without_leap]; at most a few thousand small entries.
+    JAL_CAL_CACHE = {}
+
     module_function
 
     # Integer division truncating toward zero (like JS ~~(a/b)); the algorithm relies on it.
@@ -23,6 +26,10 @@ module RedmineJalali
     end
 
     def jal_cal(jy, without_leap = false)
+      JAL_CAL_CACHE[[jy, without_leap]] ||= compute_jal_cal(jy, without_leap).freeze
+    end
+
+    def compute_jal_cal(jy, without_leap)
       bl = BREAKS.length
       gy = jy + 621
       leap_j = -14
