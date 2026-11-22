@@ -10,13 +10,15 @@
     if (text != null) e.textContent = text;
     return e;
   }
-  function btn(cls, text, onclick) {
+  function btn(cls, text, onclick, ariaLabel) {
     var b = h('button', cls, text);
     b.type = 'button';
+    if (ariaLabel) b.setAttribute('aria-label', ariaLabel);
     b.addEventListener('click', onclick);
     return b;
   }
   function num(n) { return cur.cfg.persianDigits ? J.toPersianDigits(n) : String(n); }
+  function label(name) { return (cur.cfg.labels && cur.cfg.labels[name]) || ''; }
 
   function close() {
     if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
@@ -47,6 +49,7 @@
 
     var head = h('div', 'jdp-head');
     var sel = h('select', 'jdp-month');
+    sel.setAttribute('aria-label', label('month'));
     cfg.months.forEach(function (name, idx) {
       var o = h('option', null, name);
       o.value = idx + 1;
@@ -56,20 +59,24 @@
     sel.addEventListener('change', function () { cur.jm = +sel.value; render(); });
     var yr = h('input', 'jdp-year');
     yr.type = 'number'; yr.min = 1; yr.max = 3170; yr.value = jy;
+    yr.setAttribute('aria-label', label('year'));
     yr.addEventListener('change', function () {
       var v = parseInt(yr.value, 10);
       if (v >= 1 && v <= 3170) cur.jy = v;
       render();
     });
-    head.appendChild(btn('jdp-nav', '\u2039', function () { step(-1); }));
+    head.appendChild(btn('jdp-nav', '\u2039', function () { step(-1); }, label('previousMonth')));
     head.appendChild(sel);
     head.appendChild(yr);
-    head.appendChild(btn('jdp-nav', '\u203A', function () { step(1); }));
+    head.appendChild(btn('jdp-nav', '\u203A', function () { step(1); }, label('nextMonth')));
     popup.appendChild(head);
 
     var grid = h('div', 'jdp-grid');
     for (i = 0; i < 7; i++) {
-      grid.appendChild(h('span', 'jdp-dow', cfg.days[(cfg.weekStart + i) % 7].charAt(0)));
+      var dow = h('span', 'jdp-dow', cfg.days[(cfg.weekStart + i) % 7].charAt(0));
+      dow.title = cfg.days[(cfg.weekStart + i) % 7];
+      dow.setAttribute('aria-hidden', 'true'); // each day button carries its full date
+      grid.appendChild(dow);
     }
     var g = J.toGregorian(jy, jm, 1);
     var offset = (J.weekday(g.gy, g.gm, g.gd) - cfg.weekStart + 7) % 7;
@@ -77,14 +84,18 @@
     var len = J.monthLength(jy, jm), t = J.today(), sv = cfg.value;
     for (d = 1; d <= len; d++) {
       (function (day) {
-        var cls = 'jdp-day';
-        if (sv && sv.jy === jy && sv.jm === jm && sv.jd === day) cls += ' jdp-selected';
-        if (t.jy === jy && t.jm === jm && t.jd === day) cls += ' jdp-today';
-        grid.appendChild(btn(cls, num(day), function () {
+        var cls = 'jdp-day', selected = sv && sv.jy === jy && sv.jm === jm && sv.jd === day,
+            isToday = t.jy === jy && t.jm === jm && t.jd === day;
+        if (selected) cls += ' jdp-selected';
+        if (isToday) cls += ' jdp-today';
+        var b = btn(cls, num(day), function () {
           var gg = J.toGregorian(jy, jm, day), cb = cfg.onPick;
           close();
           cb(gg);
-        }));
+        }, num(day) + ' ' + cfg.months[jm - 1] + ' ' + num(jy));
+        if (selected) b.setAttribute('aria-pressed', 'true');
+        if (isToday) b.setAttribute('aria-current', 'date');
+        grid.appendChild(b);
       })(d);
     }
     popup.appendChild(grid);
@@ -113,13 +124,16 @@
     popup.style.top = (r.bottom + sy + 2) + 'px';
   }
 
-  /* cfg: { value:{jy,jm,jd}|null, weekStart, months[12], days[7], labels:{today,clear}, rtl, persianDigits, onPick(g), onClear() } */
+  /* cfg: { value:{jy,jm,jd}|null, weekStart, months[12], days[7], labels:{today,clear,month,year,previousMonth,nextMonth},
+          fieldLabel, rtl, persianDigits, onPick(g), onClear() } */
   function open(input, cfg) {
     close();
     var base = cfg.value || J.today();
     cur = { input: input, cfg: cfg, jy: base.jy, jm: base.jm };
     popup = h('div', 'jdp');
     popup.setAttribute('dir', cfg.rtl ? 'rtl' : 'ltr');
+    popup.setAttribute('role', 'dialog');
+    if (cfg.fieldLabel) popup.setAttribute('aria-label', cfg.fieldLabel);
     document.body.appendChild(popup);
     render();
     place();
