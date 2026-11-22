@@ -16,8 +16,9 @@ module RedmineJalali
       rescue StandardError
         nil
       end
-      cleaned = (stored || {}).to_h.transform_keys(&:to_s).reject { |_, v| v.to_s.strip.empty? }
-      DEFAULT_SETTINGS.merge(cleaned)
+      # Only missing keys fall back to the defaults. An empty locale list is a real
+      # choice: it turns Jalali off, so it must not be replaced by the default 'fa'.
+      DEFAULT_SETTINGS.merge((stored || {}).to_h.transform_keys(&:to_s).compact)
     end
 
     def enabled_locales

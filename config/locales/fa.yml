@@ -1,6 +1,6 @@
 fa:
   label_jalali_enabled_locales: "زبان‌های دارای تقویم جلالی"
-  text_jalali_enabled_locales_info: "کد زبان‌ها با کاما جدا شوند، مثلاً fa یا fa,en"
+  text_jalali_enabled_locales_info: "کد زبان‌ها با کاما جدا شوند، مثلاً fa یا fa,en. برای خاموش کردن تقویم جلالی خالی بگذارید."
   label_jalali_persian_digits: "نمایش ارقام فارسی"
   label_jalali_week_start: "اولین روز هفته"
   redmine_jalali:

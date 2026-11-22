@@ -72,7 +72,7 @@ Configuration: Administration → Plugins → Redmine Jalali → Configure
 
 | Setting | Default | Description |
 |---|---|---|
-| Locales using the Jalali calendar | `fa` | Comma-separated locale codes, e.g. `fa,en` |
+| Locales using the Jalali calendar | `fa` | Comma-separated locale codes, e.g. `fa,en`. Empty turns Jalali off |
 | Use Persian digits | off | Show ۱۴۰۴/۰۱/۰۱ instead of 1404/01/01 |
 | First day of the week | Saturday | Used by the date picker |
 
