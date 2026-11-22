@@ -30,8 +30,8 @@ module RedmineJalali
       fmt = ::I18n.t("date.formats.#{fmt}", default: '%Y/%m/%d') if fmt.is_a?(Symbol)
 
       jy, jm, jd = Converter.gregorian_to_jalali(date)
-      months = month_names
-      days = day_names
+      # Names are looked up only when the format uses them; the default formats don't.
+      months = days = nil
 
       out = fmt.to_s.gsub(/%([-_0^]?)([YymdeBbAa%])/) do
         flag = Regexp.last_match(1)
@@ -41,8 +41,8 @@ module RedmineJalali
         when 'm' then pad(jm, 2, flag, '0')
         when 'd' then pad(jd, 2, flag, '0')
         when 'e' then pad(jd, 2, flag, ' ')
-        when 'B', 'b' then months[jm - 1]
-        when 'A', 'a' then days[date.wday]
+        when 'B', 'b' then (months ||= month_names)[jm - 1]
+        when 'A', 'a' then (days ||= day_names)[date.wday]
         when '%' then '%'
         end
       end
