@@ -20,6 +20,9 @@ Tested on Redmine 7.0.1 (`redmine:7.0.1-alpine`, Ruby 4.0, Rails 8.1, PostgreSQL
   value, so form posts and Redmine's own JavaScript behave as before.
 - Typed input accepts `1404/01/01`, `1404-1-1`, `۱۴۰۴/۰۱/۰۱`, or a Gregorian date
   such as `2025-03-21` (years >= 1700 are read as Gregorian).
+- An invalid typed date (for example `1404/12/30`, since 1404 is not a leap year)
+  stays in the field in red with a message, and the form is not sent until it is
+  fixed or cleared.
 - Optional Persian digits and configurable first day of the week.
 
 ## Installation

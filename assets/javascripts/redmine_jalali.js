@@ -51,9 +51,15 @@
     syncState();
     new MutationObserver(syncState).observe(src, { attributes: true, attributeFilter: ['style', 'disabled', 'hidden', 'class'] });
 
+    // An invalid field keeps the typed text and blocks form validation, so a wrong
+    // date is never replaced by the previous value without the user noticing.
+    function setInvalid(invalid) {
+      vis.classList.toggle('jalali-invalid', invalid);
+      vis.setCustomValidity(invalid ? cfg.labels.invalid : '');
+    }
     function display() {
       vis.value = J.formatIso(src.value, cfg.persianDigits);
-      vis.classList.remove('jalali-invalid');
+      setInvalid(false);
     }
     function setIso(iso) {
       var changed = src.value !== iso;
@@ -66,7 +72,7 @@
       var txt = vis.value.replace(/^\s+|\s+$/g, '');
       if (txt === '') { setIso(''); return true; }
       var g = J.parseInput(txt);
-      if (!g) { vis.classList.add('jalali-invalid'); return false; }
+      if (!g) { setInvalid(true); return false; }
       setIso(J.toIso(g.gy, g.gm, g.gd));
       return true;
     }
@@ -81,17 +87,39 @@
     }
 
     display();
-    vis.addEventListener('focus', function () { display(); openPicker(); });
+    vis._jalaliCommit = commit;
+    vis.addEventListener('focus', function () {
+      if (!vis.classList.contains('jalali-invalid')) display();
+      openPicker();
+    });
     vis.addEventListener('click', openPicker);
     vis.addEventListener('change', commit);
-    vis.addEventListener('blur', function () { if (commit() === false) display(); });
+    vis.addEventListener('blur', commit);
     vis.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { commit(); window.JalaliDatePicker.close(); }
+      if (e.key !== 'Enter') return;
+      window.JalaliDatePicker.close();
+      if (!commit()) { e.preventDefault(); vis.reportValidity(); }
     });
     // Programmatic updates of the original (jQuery .trigger('change') etc.)
     src.addEventListener('change', display);
     // Label clicks focus the original; forward to the visible input.
     src.addEventListener('focus', function () { vis.focus(); });
+  }
+
+  // Commits every Jalali field of a form before it is sent and stops the submit when
+  // one of them holds an invalid date. Browser validation already covers a click on a
+  // submit button, but Redmine also submits forms from script (e.g. the query "Apply"
+  // link calls jQuery's .submit()), which skips validation.
+  function guardSubmit(e) {
+    var form = e.target, fields = form.querySelectorAll ? form.querySelectorAll('input.jalali-date') : [];
+    for (var i = 0; i < fields.length; i++) {
+      var vis = fields[i];
+      if (vis.disabled || !vis._jalaliCommit || vis._jalaliCommit()) continue;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      vis.reportValidity();
+      return false;
+    }
   }
 
   function enhanceAll(root) {
@@ -110,9 +138,17 @@
       rtl: d.rtl === '1',
       months: parseJSON(d.months, []),
       days: parseJSON(d.days, []),
-      labels: parseJSON(d.labels, { today: 'Today', clear: 'Clear' })
+      labels: parseJSON(d.labels, {})
     };
     if (cfg.months.length !== 12 || cfg.days.length !== 7) return;
+    cfg.labels.today = cfg.labels.today || 'Today';
+    cfg.labels.clear = cfg.labels.clear || 'Clear';
+    cfg.labels.invalid = cfg.labels.invalid || 'Invalid date';
+
+    // Capture phase: runs before Rails UJS and other submit handlers on real submits.
+    document.addEventListener('submit', guardSubmit, true);
+    // jQuery's .submit()/.trigger('submit') only calls jQuery handlers, so hook there too.
+    if (window.jQuery) window.jQuery(document).on('submit', 'form', guardSubmit);
 
     enhanceAll(document);
 

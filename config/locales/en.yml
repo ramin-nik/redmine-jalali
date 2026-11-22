@@ -6,5 +6,6 @@ en:
   redmine_jalali:
     today: "Today"
     clear: "Clear"
+    invalid_date: "Invalid date. Enter it like 1404/01/01."
     month_names: ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
     day_names: ["Yekshanbe", "Doshanbe", "Seshanbe", "Chaharshanbe", "Panjshanbe", "Jomeh", "Shanbe"]
