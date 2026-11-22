@@ -81,19 +81,41 @@ directives: `%Y %y %m %d %e %B %b %A %a` (flags `-`, `_`, `0`).
 
 ## Verify the install
 
+Replace `<container>` with your Redmine container name:
+
 ```bash
-docker exec redmine-7-redmine-1 bundle exec rails runner '
+docker exec -u redmine <container> bundle exec rails runner '
 I18n.locale = :fa
 include Redmine::I18n
 puts format_date(Date.new(2025,3,21))   # => 1404/01/01
 '
 ```
 
-The asset URL should return 200:
+`docker exec` skips the image entrypoint. If you pass the secret through
+`REDMINE_SECRET_KEY_BASE_FILE`, the command above fails with "Missing
+`secret_key_base`"; add `-e SECRET_KEY_BASE="$(cat <secret file>)"` or export it
+inside the container first.
 
-```bash
-curl -I http://localhost:3000/plugin_assets/redmine_jalali/javascripts/jalali.js
-```
+Then check that the plugin's JavaScript and CSS are served. The URLs depend on the
+Redmine version:
+
+- Redmine 5.x serves plugin assets from a fixed path, which should return 200:
+
+  ```bash
+  curl -I http://localhost:3000/plugin_assets/redmine_jalali/javascripts/jalali.js
+  ```
+
+- Redmine 6.0 and later serve them through Propshaft, with a digest in the file
+  name (for example `/assets/plugin_assets/redmine_jalali/jalali-cde45472.js`),
+  so the path above returns 404. List the real URLs from a page instead. This
+  needs a page shown in an enabled locale: log in with a Persian account, or
+  make the default language one of the enabled locales.
+
+  ```bash
+  curl -s http://localhost:3000/login | grep -oE '/[^"]*plugin_assets/redmine_jalali/[^"]*'
+  ```
+
+  Each listed URL should return 200.
 
 If Jalali formatting ever fails, Redmine falls back to Gregorian and logs a line
 starting with `[redmine_jalali]`.
