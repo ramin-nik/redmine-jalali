@@ -76,7 +76,8 @@
         weekStart: cfg.weekStart, months: cfg.months, days: cfg.days, labels: cfg.labels,
         rtl: cfg.rtl, persianDigits: cfg.persianDigits,
         onPick: function (g) { setIso(J.toIso(g.gy, g.gm, g.gd)); },
-        onClear: function () { setIso(''); }
+        onClear: function () { setIso(''); },
+        nonWorking: cfg.nonWorking
       });
     }
 
@@ -108,6 +109,7 @@
       weekStart: parseInt(d.weekStart, 10) || 0,
       persianDigits: d.persianDigits === '1',
       rtl: d.rtl === '1',
+      nonWorking: parseJSON(d.nonWorking, []), // Redmine's non-working week days, 0 = Sunday
       months: parseJSON(d.months, []),
       days: parseJSON(d.days, []),
       labels: parseJSON(d.labels, { today: 'Today', clear: 'Clear' })

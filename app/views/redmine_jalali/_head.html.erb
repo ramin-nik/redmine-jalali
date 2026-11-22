@@ -4,6 +4,7 @@
                data: {
                  'week-start'     => RedmineJalali.week_start.to_s,
                  'persian-digits' => (RedmineJalali.persian_digits? ? '1' : '0'),
+                 'non-working'    => Array(Setting.non_working_week_days).map { |d| d.to_i % 7 }.to_json,
                  'rtl'            => (::I18n.t(:direction) == 'rtl' ? '1' : '0'),
                  'months'         => RedmineJalali::Formatter.month_names.to_json,
                  'days'           => RedmineJalali::Formatter.day_names.to_json,
