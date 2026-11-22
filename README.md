@@ -126,3 +126,7 @@ ruby -Ilib test/converter_test.rb
 
 Remove the plugin folder (or the compose volume line) and restart Redmine.
 Nothing needs to be rolled back, since no data was changed.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
