@@ -16,7 +16,9 @@ end
 
 # Apply immediately (Redmine::I18n lives in lib/ and is not reloaded)...
 RedmineJalali::Patches::I18nPatch.apply!
+RedmineJalali::Patches::ImportPatch.apply!
 # ...and again after initialization as a safety net (idempotent).
 Rails.configuration.to_prepare do
   RedmineJalali::Patches::I18nPatch.apply!
+  RedmineJalali::Patches::ImportPatch.apply!
 end

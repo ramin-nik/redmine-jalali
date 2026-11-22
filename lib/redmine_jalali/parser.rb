@@ -24,5 +24,29 @@ module RedmineJalali
     rescue ArgumentError
       nil
     end
+
+    # Reads a CSV import cell written in an strftime format made of %Y, %m, %d and
+    # separators (Redmine's Import::DATE_FORMATS). Returns:
+    #   a Date      when the cell holds a valid Jalali date (year < 1700),
+    #   :invalid    when it holds a Jalali year but the date does not exist,
+    #   nil         when it is not a Jalali date, so Redmine's own parsing applies.
+    def parse_import_date(str, format)
+      order = []
+      pattern = Regexp.escape(format.to_s).gsub(/%([Ymd])/) do
+        order << Regexp.last_match(1)
+        Regexp.last_match(1) == 'Y' ? '(\d{3,4})' : '(\d{1,2})'
+      end
+      return nil unless order.sort == %w[Y d m]
+
+      m = normalize_digits(str).strip.match(/\A#{pattern}\z/)
+      return nil unless m
+
+      parts = order.zip(m.captures.map(&:to_i)).to_h
+      return nil if parts['Y'] >= 1700
+
+      Converter.jalali_to_gregorian(parts['Y'], parts['m'], parts['d'])
+    rescue ArgumentError
+      :invalid
+    end
   end
 end
