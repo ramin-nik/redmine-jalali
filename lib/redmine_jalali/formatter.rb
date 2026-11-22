@@ -19,6 +19,13 @@ module RedmineJalali
       names.is_a?(Array) && names.size == 7 ? names : FA_DAYS
     end
 
+    # Short weekday names for the date picker header, indexed like day_names.
+    # Falls back to the first letter of each day name.
+    def day_abbrs
+      abbrs = ::I18n.t('redmine_jalali.day_abbrs', default: '')
+      abbrs.is_a?(Array) && abbrs.size == 7 ? abbrs : day_names.map { |name| name[0] }
+    end
+
     def to_persian_digits(str)
       str.to_s.tr('0123456789', PERSIAN_DIGITS)
     end

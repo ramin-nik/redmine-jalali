@@ -7,6 +7,7 @@
                  'rtl'            => (::I18n.t(:direction) == 'rtl' ? '1' : '0'),
                  'months'         => RedmineJalali::Formatter.month_names.to_json,
                  'days'           => RedmineJalali::Formatter.day_names.to_json,
+                 'day-abbrs'      => RedmineJalali::Formatter.day_abbrs.to_json,
                  'labels'         => { today: ::I18n.t('redmine_jalali.today', default: 'Today'),
                                        clear: ::I18n.t('redmine_jalali.clear', default: 'Clear') }.to_json
                } %>

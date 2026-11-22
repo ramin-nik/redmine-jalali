@@ -8,3 +8,5 @@ en:
     clear: "Clear"
     month_names: ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
     day_names: ["Yekshanbe", "Doshanbe", "Seshanbe", "Chaharshanbe", "Panjshanbe", "Jomeh", "Shanbe"]
+    # Date picker header; two letters, because Seshanbe and Shanbe share their first letter.
+    day_abbrs: ["Ye", "Do", "Se", "Ch", "Pa", "Jo", "Sh"]
