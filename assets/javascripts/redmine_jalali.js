@@ -19,6 +19,16 @@
     try { return J.toJalali(+m[1], +m[2], +m[3]); } catch (e) { return null; }
   }
 
+  var labelSeq = 0;
+  // The label of a date input: its <label for>, or the field label of a query filter
+  // row (div.filter in Redmine 6+, tr.filter before).
+  function labelOf(src) {
+    var l = src.labels && src.labels.length ? src.labels[0] : null;
+    if (l) return l;
+    var row = src.closest && src.closest('.filter');
+    return row ? row.querySelector('.field label') : null;
+  }
+
   function enhance(src) {
     if (src.getAttribute('data-jalali')) return;
     src.setAttribute('data-jalali', '1');
@@ -37,6 +47,16 @@
     vis.setAttribute('data-jalali-view', '1');
     vis.placeholder = cfg.persianDigits ? J.toPersianDigits('1404/01/01') : '1404/01/01';
     if (src.title) vis.title = src.title;
+    // Give the Jalali field the accessible name of the date input it replaces.
+    var label = labelOf(src), fieldLabel = '';
+    if (label) {
+      if (!label.id) label.id = 'jalali-label-' + (++labelSeq);
+      vis.setAttribute('aria-labelledby', label.id);
+      fieldLabel = label.textContent.replace(/\s*\*\s*$/, '').replace(/\s+/g, ' ').trim();
+    } else if (src.getAttribute('aria-label') || src.title) {
+      fieldLabel = src.getAttribute('aria-label') || src.title;
+      vis.setAttribute('aria-label', fieldLabel);
+    }
     if (src.required) vis.required = true;
 
     src.classList.add('jalali-source');
@@ -74,7 +94,7 @@
       window.JalaliDatePicker.open(vis, {
         value: jalaliOf(src.value),
         weekStart: cfg.weekStart, months: cfg.months, days: cfg.days, labels: cfg.labels,
-        rtl: cfg.rtl, persianDigits: cfg.persianDigits,
+        rtl: cfg.rtl, persianDigits: cfg.persianDigits, fieldLabel: fieldLabel,
         onPick: function (g) { setIso(J.toIso(g.gy, g.gm, g.gd)); },
         onClear: function () { setIso(''); }
       });
