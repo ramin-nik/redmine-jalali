@@ -113,8 +113,6 @@ starting with `[redmine_jalali]`.
 - The date-format preview in Administration → Settings → Display is Gregorian.
 - The converter uses the 33-year arithmetic algorithm. It matches the astronomical
   calendar for 1900-2123 (Jalali 1279-1502) and may differ by a day after that.
-- Date changes made by other scripts without a `change` event show in the Jalali
-  field only after it gets focus.
 
 ## Tests
 
