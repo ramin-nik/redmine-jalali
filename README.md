@@ -119,8 +119,12 @@ starting with `[redmine_jalali]`.
 ## Tests
 
 ```bash
-ruby -Ilib test/converter_test.rb
+for f in test/*_test.rb; do ruby -Ilib "$f"; done   # Ruby, no Redmine needed
+node --test test/js/*.test.js                       # JavaScript, no npm packages needed
 ```
+
+GitHub Actions runs both, plus a smoke test that boots Redmine 5.0 to 7.0 with
+the plugin (`.github/workflows/test.yml`).
 
 ## Uninstall
 
